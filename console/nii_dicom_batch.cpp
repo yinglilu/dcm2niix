@@ -326,10 +326,12 @@ void siemensPhilipsCorrectBvecs(struct TDICOMdata *d, int sliceDir, struct TDTI 
     }  else if (abs(sliceDir) == kSliceOrientMosaicNegativeDeterminant) {
        printWarning("Saving %d DTI gradients. Validate vectors (matrix had a negative determinant).\n", d->CSA.numDti); //perhaps Siemens sagittal
     } else if (( d->sliceOrient == kSliceOrientTra) || (d->manufacturer != kMANUFACTURER_PHILIPS)) {
-        if (isVerbose)
-        	printMessage("Saving %d DTI gradients. Validate vectors.\n", d->CSA.numDti);
+    //yingli commented this line: 2019-11-04, reason: heudiconv (ver 0.5.4) depends on nipype, 
+    //it's dcm2nii.py parse dcm2niix's stdout to determine if have bvals/bvecs
+    //if (isVerbose)
+        printMessage("Saving %d DTI gradients. Validate vectors.\n", d->CSA.numDti);
     } else if ( d->sliceOrient == kSliceOrientUnknown)
-    	printWarning("Saving %d DTI gradients. Validate vectors (image slice orientation not reported, e.g. 2001,100B).\n", d->CSA.numDti);
+        printWarning("Saving %d DTI gradients. Validate vectors (image slice orientation not reported, e.g. 2001,100B).\n", d->CSA.numDti);
 	if (d->manufacturer == kMANUFACTURER_BRUKER)
 		printWarning("Bruker DTI support experimental (issue 265).\n");
 }// siemensPhilipsCorrectBvecs()
@@ -1867,7 +1869,12 @@ int * nii_saveDTI(char pathoutname[],int nConvert, struct TDCMsort dcmSort[],str
     fclose(fp);
     strcpy(txtname,pathoutname);
     if (dcmList[indx0].isVectorFromBMatrix)
-    	strcat (txtname,".mvec");
+        //yingli commented this line, 2019-08-23, reason: heudiconv ver 0.5.4 depends on nipype, it's
+        //dcm2nii.py can not handle .mvec correctly
+        //strcat (txtname,".mvec");
+
+        //yingli add this line
+        strcat (txtname,".bvec");
     else
     	strcat (txtname,".bvec");
     //printMessage("Saving DTI %s\n",txtname);
